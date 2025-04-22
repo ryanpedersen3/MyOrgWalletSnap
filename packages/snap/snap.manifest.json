@@ -1,0 +1,33 @@
+{
+  "version": "0.1.0",
+  "description": "myOrgWallet MetaMask extension",
+  "proposedName": "myOrgWalletSnap",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MetaMask/template-snap-monorepo.git"
+  },
+  "source": {
+    "shasum": "o/77d4RxaUcvohW4JnKToISEdnU9sQody8YuNZ8So4Y=",
+    "location": {
+      "npm": {
+        "filePath": "dist/bundle.js",
+        "packageName": "snap",
+        "registry": "https://registry.npmjs.org/"
+      }
+    }
+  },
+  "initialPermissions": {
+    "endowment:transaction-insight": {},
+    "endowment:signature-insight": {
+      "allowSignatureOrigin": true
+    },
+    "snap_dialog": {},
+    "snap_manageState": {},
+    "endowment:rpc": {
+      "dapps": true,
+      "snaps": false
+    }
+  },
+  "platformVersion": "6.18.0",
+  "manifestVersion": "0.1"
+}
