@@ -14,6 +14,10 @@ interface VCState {
   credentials: Record<string, any>; // VC ID -> VC object
 }
 
+interface DelState {
+  delegations: Record<string, any>; // Del ID -> Del object
+}
+
 /**
  * Handle incoming JSON-RPC requests, sent through `wallet_invokeSnap`.
  *
@@ -29,6 +33,58 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
   request,
 }) => {
   switch (request.method) {
+
+    case 'storeDel':
+      const del = JSON.parse(JSON.stringify(request.params?.snapDel));
+      if (!del || !del.id) throw new Error('Invalid Del: ' + JSON.stringify(request.params));
+      
+      const st2 = (await snap.request({
+        method: 'snap_manageState',
+        params: { operation: 'get' },
+      })) as DelState | null;
+      
+      const currentDelegations = st2?.delegations || {};
+      const newState2 = {
+        credentials: {
+          ...currentDelegations,
+          [del.id]: del,
+        },
+      };
+      
+      await snap.request({
+        method: 'snap_manageState',
+        params: { operation: 'update', newState2 },
+      });
+
+      return `Del ${del.id} stored successfully`;
+
+    case 'getDels':
+
+      const currentStateAll2 = (await snap.request({
+        method: 'snap_manageState',
+        params: { operation: 'get' },
+      })) as DelState | null;
+
+      if (!currentStateAll2) {
+        throw new Error('Dels not found: ' );
+      }
+      return currentStateAll2.delegations;
+
+    case 'getDel':
+      const id2 = request.params?.id;
+      if (!id2) throw new Error('Del ID required: ' + JSON.stringify(request.params));
+
+      const currentState2 = (await snap.request({
+        method: 'snap_manageState',
+        params: { operation: 'get' },
+      })) as DelState | null;
+
+      if (!currentState2 || !currentState2.delegations[id2]) {
+        throw new Error('Del not found: ' + id2 + ", delegations: " +  JSON.stringify(currentState2));
+      }
+      return currentState2.delegations[id2];
+
+
     case 'storeVC':
       const vc = JSON.parse(JSON.stringify(request.params?.snapVC));
       if (!vc || !vc.id) throw new Error('Invalid VC: ' + JSON.stringify(request.params));
